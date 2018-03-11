@@ -1,0 +1,57 @@
+Example RGB message:
+sensornode2/cmd {"state": "ON", "color": {"r": 70, "g": 255, "b": 72}}
+
+LED library:
+https://github.com/theraspberryguy/rgbled
+
+
+Run on startup:
+- Add to /etc/rc.local:
+/home/pi/powerPi/powerPi.local
+  - Doesn't work
+  - in log: error importing paho
+    - /var/log/syslog
+  - paho not installed in root's python3 environment
+- Try to set up a pipenv in powerPi folder
+$ pipenv install --three
+  - get a stack trace and a timeout exception
+  - this is the issue:
+https://github.com/pypa/pipenv/issues/401
+- Give up on the right way for now and just sudo pip install paho-mqtt
+  - didn't work
+  - sudo python; import paho.mqtt.client also fails
+- run script from rc.local as pi instead of root
+su - pi -c /home/pi/powerPi/powerPi.local
+  - it works!
+
+PowerPi stops responding to MQTT after a few days
+- Interim solution: set up cron job (/etc/crontab) to reboot nightly
+- Added trap for Ctrl-Z 
+  - dumps faulthandler traceback - shows stack trace for all threads
+  - Output below: 
+
+
+pi@poweRPi:~ $ /usr/bin/python3 /home/pi/powerPi/powerPi.py /home/pi/powerPi/config.json
+/home/pi/powerPi/powerPi.py:20: RuntimeWarning: This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.
+  gpio.setup(pin, gpio.OUT)                                                             
+^ZSuspend trapped                                                                                                                                   
+Thread 0xb48ff470 (most recent call first):                                                        
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 988 in loop         
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 1481 in loop_forever
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 2650 in _thread_main
+  File "/usr/lib/python3.5/threading.py", line 862 in run                                          
+  File "/usr/lib/python3.5/threading.py", line 914 in _bootstrap_inner                             
+  File "/usr/lib/python3.5/threading.py", line 882 in _bootstrap
+                                                                                          
+Thread 0xb50ff470 (most recent call first):                                                                                                         
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 988 in loop         
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 1481 in loop_forever                                                 
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 2650 in _thread_main
+  File "/usr/lib/python3.5/threading.py", line 862 in run                                          
+  File "/usr/lib/python3.5/threading.py", line 914 in _bootstrap_inner                             
+  File "/usr/lib/python3.5/threading.py", line 882 in _bootstrap
+                                                                      
+Thread 0xb5aff470 (most recent call first):                                             
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 988 in loop                                                          
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 1481 in loop_forever
+  File "/home/pi/.local/lib/python3.5/site-packages/paho/mqtt/client.py", line 2650 in _thread_main   

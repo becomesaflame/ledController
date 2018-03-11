@@ -1,0 +1,20 @@
+{
+    "logging": {
+        "level": "DEBUG",
+        "logfile": "ledController.log"
+    },
+    "mqtt": {
+        "username": "",
+        "password": "",
+        "host": "192.168.86.15",
+        "port": 1883,
+        "command_topic": "home-assistant/ledController0/command",
+        "state_topic": "home-assistant/ledController0/state",
+        "availability_topic": "home-assistant/ledController0/availability"
+    },
+    "leds": {
+        "red_pin": 7,
+        "green_pin": 3,
+        "blue_pin": 8
+    }
+}
